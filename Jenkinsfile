@@ -1,8 +1,7 @@
-
 pipeline {
     agent any
     tools {
-        maven 'Maven'
+        maven 'Maven'  // Assure-toi que ce nom correspond à Maven configuré dans Jenkins
     }
     environment {
         APP_ENV = "DEV"
@@ -11,12 +10,29 @@ pipeline {
         stage('Code Checkout') {
             steps {
                 git branch: 'master',
-                    url: 'https://github.com/emnahomrani29/DevOps.git'
+                    url: 'https://github.com/MouhibLafi/Mouhib_DevOps.git'
             }
         }
         stage('Code Build') {
             steps {
-                sh 'mvn -version'
+                sh 'mvn clean install'
+            }
+        }
+        stage('SonarQube Analysis') {
+            environment {
+                scannerHome = tool 'SonarScanner'  // Nom de ton SonarScanner configuré dans Jenkins
+            }
+            steps {
+                withSonarQubeEnv('SonarQube') {  // Nom du serveur SonarQube configuré dans Jenkins
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
     }
