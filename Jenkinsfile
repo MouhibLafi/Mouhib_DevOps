@@ -1,6 +1,11 @@
 pipeline {
     agent any
     
+    tools {
+        jdk 'JAVA_HOME'   // Assure-toi que JAVA_HOME est configuré dans Jenkins
+        maven 'M2_HOME'   // Assure-toi que M2_HOME est configuré dans Jenkins
+    }
+
     stages {
         // Étape 1 : Cloner le dépôt Git
         stage('Clone') {
