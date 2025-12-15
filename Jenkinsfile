@@ -6,6 +6,7 @@ pipeline {
     }
     
     stages {
+
         stage('Clone') {
             steps {
                 checkout scm
@@ -37,6 +38,14 @@ pipeline {
                 }
             }
         }
+
+        
+        stage('Build Docker Image') {
+            steps {
+                echo '🐳 Construction de l’image Docker...'
+                sh 'docker build -t mouhiblafi/mouhib-devops:latest .'
+            }
+        }
     }
     
     post {
@@ -47,7 +56,7 @@ pipeline {
             echo '❌ Pipeline échoué.'
         }
         always {
-            echo 'Pipeline terminé.'
+            echo '📦 Pipeline terminé.'
         }
     }
 }
