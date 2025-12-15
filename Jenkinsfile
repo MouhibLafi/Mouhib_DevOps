@@ -1,11 +1,10 @@
 pipeline {
     agent any
     
-    tools {
-        jdk 'JDK17'    // Nom exact du JDK configuré dans Jenkins
-        maven 'Maven'  // Nom exact de Maven configuré dans Jenkins
+    environment {
+        SONAR_TOKEN = credentials('qube1')
     }
-
+    
     stages {
         stage('Clone') {
             steps {
@@ -16,6 +15,26 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'mvn -B clean package -DskipTests'
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar1') {
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=ProjetStudentsManagement \
+                        -Dsonar.token=${SONAR_TOKEN}
+                    """
+                }
+            }
+        }
+        
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
         }
     }
